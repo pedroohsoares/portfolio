@@ -8,6 +8,31 @@
   --card: #fff;
   --shadow: 0 2px 12px rgba(12, 27, 51, 0.08);
 }
+body[data-theme="dark"] {
+  --primary: #e3e6ee;         /* texto principal quase branco */
+  --secondary: #a7c6ed;       /* títulos e detalhes claros */
+  --tertiary: #70a4d7;        /* detalhes/links */
+  --accent: #3d6b99;          /* destaque escuro */
+  --light: #1f3a5f;           /* detalhes escuros */
+  --bg: #101a26;              /* fundo principal escuro */
+  --card: #172136;            /* fundo dos cards escuro */
+  --shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.toggle-theme-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1.7rem;
+  cursor: pointer;
+  margin-left: 1.5rem;
+  transition: color 0.2s;
+  position: relative;
+  top: 2px;
+  z-index: 10;
+}
+.toggle-theme-btn:hover {
+  color: var(--tertiary);
+}
 
 body {
   font-family: 'Raleway', 'Exo', 'Exo 2', Arial, sans-serif;
