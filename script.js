@@ -37,16 +37,3 @@ if(localStorage.getItem('theme') === 'dark') {
   body.setAttribute('data-theme', 'dark');
   toggleBtn.textContent = '☀️';
 }
-
-// Alterna tema ao clicar
-toggleBtn.addEventListener('click', () => {
-  if(body.getAttribute('data-theme') === 'dark') {
-    body.setAttribute('data-theme', 'light');
-    localStorage.setItem('theme', 'light');
-    toggleBtn.textContent = '🌙';
-  } else {
-    body.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
-    toggleBtn.textContent = '☀️';
-  }
-});
