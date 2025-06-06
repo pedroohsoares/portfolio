@@ -1,5 +1,3 @@
-// --- CÓDIGO JAVASCRIPT FINAL E CORRIGIDO ---
-
 // Garante que a página carregue no topo
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
