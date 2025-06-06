@@ -50,22 +50,58 @@ nav {
     border: none;
 }
 
-nav ul {
+.nav-links {
     list-style: none;
     display: flex;
     gap: 1.5rem;
 }
 
-nav ul li a {
+.nav-links li a {
     color: var(--text-color);
     text-decoration: none;
     font-weight: 400;
     transition: color 0.3s ease;
     padding: 5px;
+    position: relative; /* Para o efeito de sublinhado */
 }
 
-nav ul li a:hover {
+.nav-links li a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: -5px;
+    left: 0;
+    background-color: var(--accent-color);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+}
+
+.nav-links li a:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+.nav-links li a:hover {
     color: var(--accent-color);
+}
+
+.hamburger {
+    display: none; /* Escondido em telas grandes */
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+.hamburger .bar {
+    display: block;
+    width: 25px;
+    height: 3px;
+    margin: 5px auto;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    background-color: var(--text-color);
 }
 
 /* --- Seções e Conteúdo Principal --- */
@@ -110,11 +146,6 @@ h2::after {
     align-items: center;
     text-align: center;
     background: linear-gradient(rgba(18, 18, 18, 0.7), var(--bg-color)), url('imagens/psbyte.png') no-repeat center center/cover;
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2;
 }
 
 #hero h1 {
@@ -205,7 +236,6 @@ h2::after {
     object-fit: cover;
 }
 
-/* ▼▼▼ ESTILOS RESTAURADOS PARA O CONTEÚDO DOS CARDS ▼▼▼ */
 .project-card h3 {
     font-size: 1.25rem;
     margin: 1.5rem 1.5rem 0.5rem;
@@ -215,7 +245,7 @@ h2::after {
     font-size: 0.95rem;
     color: #b0b0b0;
     margin: 0 1.5rem;
-    flex-grow: 1; /* Faz o parágrafo ocupar o espaço disponível */
+    flex-grow: 1; 
 }
 
 .tags-container {
@@ -315,4 +345,91 @@ footer {
 .scroll-to-top:hover {
     transform: translateY(-5px);
     background-color: #0056b3;
+}
+
+/* --- MEDIA QUERIES PARA RESPONSIVIDADE --- */
+
+@media (max-width: 768px) {
+    body.nav-active {
+        overflow: hidden; /* Impede a rolagem do fundo com o menu aberto */
+    }
+
+    .nav-links {
+        position: fixed;
+        left: -100%; /* Começa escondido fora da tela */
+        top: 0;
+        gap: 0;
+        flex-direction: column;
+        background-color: var(--primary-color);
+        width: 100%;
+        height: 100vh;
+        text-align: center;
+        transition: left 0.3s ease;
+        padding-top: 5rem;
+        z-index: 1000;
+    }
+
+    .nav-links.active {
+        left: 0; /* Aparece na tela */
+    }
+
+    .nav-links li a {
+        font-size: 1.5rem;
+        padding: 1.5rem 0;
+        display: block; /* Para ocupar a linha toda */
+    }
+    .nav-links li a::after {
+        display: none; /* Remove o efeito de sublinhado no mobile */
+    }
+
+    .hamburger {
+        display: block;
+        z-index: 1001; /* Para ficar acima do menu */
+    }
+
+    .hamburger.active .bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.active .bar:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+
+    .hamburger.active .bar:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+
+    .container {
+        padding: 3rem 1.5rem;
+    }
+
+    #hero {
+        padding: 0 1.5rem;
+    }
+
+    #hero h1 {
+        font-size: 3rem;
+    }
+
+    #hero p {
+        font-size: 1rem;
+    }
+
+    .skills-grid, .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-links span {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    #hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .container {
+        padding: 2.5rem 1rem;
+    }
 }
