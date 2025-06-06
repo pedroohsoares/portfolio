@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- EFEITO DE DIGITAÇÃO ---
     const subtitleElement = document.getElementById('subtitle');
     if (subtitleElement) {
-        const titles = ["Técnico em Marketing", "Estudante de Sistemas de Informação", "Apaixonado por Design & Código"];
+        const titles = ["Técnico em Marketing", "Graduando em Sistemas de Informação", "Apaixonado por Design & Código"];
         let titleIndex = 0;
         let charIndex = 0;
 
