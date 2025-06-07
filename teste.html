@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Breakout Clássico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos gerais para o corpo da página */
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Estilo do canvas do jogo */
+        canvas {
+            background: #000000;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Estilo dos cabeçalhos e informações */
+        h1 {
+            color: #4CAF50;
+            text-shadow: 2px 2px #000000;
+        }
+
+        #gameInfo {
+            display: flex;
+            justify-content: space-between;
+            width: 800px;
+            max-width: 90%;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        /* Estilo do botão de reiniciar */
+        #restartButton {
+            display: none; /* Escondido por padrão */
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 16px;
+            color: #ffffff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px #000000;
+            transition: all 0.2s ease;
+        }
+
+        #restartButton:hover {
+            background-color: #45a049;
+        }
+
+        #restartButton:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px #000000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Breakout Clássico</h1>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="gameInfo">
+        <span id="score">Pontuação: 0</span>
+        <span id="lives">Vidas: 3</span>
+    </div>
+    <button id="restartButton">Jogar Novamente</button>
+
+    <script>
+        // --- Configuração do Jogo ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const livesElement = document.getElementById('lives');
+        const restartButton = document.getElementById('restartButton');
+
+        let score = 0;
+        let lives = 3;
+        let gameRunning = true;
+
+        // --- Propriedades da Bola ---
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            radius: 10,
+            dx: 4,
+            dy: -4
+        };
+
+        // --- Propriedades da Raquete ---
+        const paddle = {
+            height: 15,
+            width: 120,
+            x: (canvas.width - 120) / 2
+        };
+
+        // --- Propriedades dos Tijolos ---
+        const brick = {
+            rowCount: 5,
+            columnCount: 9,
+            width: 75,
+            height: 20,
+            padding: 10,
+            offsetTop: 40,
+            offsetLeft: 30
+        };
+        const bricks = [];
+
+        // --- Inicialização dos Tijolos ---
+        function initializeBricks() {
+            for (let c = 0; c < brick.columnCount; c++) {
+                bricks[c] = [];
+                for (let r = 0; r < brick.rowCount; r++) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1, color: getRandomColor() };
+                }
+            }
+        }
+
+        function getRandomColor() {
+            const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FFFF33'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+
+        // --- Funções de Desenho ---
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#4CAF50";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPaddle() {
+            ctx.beginPath();
+            ctx.rect(paddle.x, canvas.height - paddle.height, paddle.width, paddle.height);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawBricks() {
+            for (let c = 0; c < brick.columnCount; c++) {
+                for (let r = 0; r < brick.rowCount; r++) {
+                    if (bricks[c][r].status === 1) {
+                        const brickX = (c * (brick.width + brick.padding)) + brick.offsetLeft;
+                        const brickY = (r * (brick.height + brick.padding)) + brick.offsetTop;
+                        bricks[c][r].x = brickX;
+                        bricks[c][r].y = brickY;
+                        ctx.beginPath();
+                        ctx.rect(brickX, brickY, brick.width, brick.height);
+                        ctx.fillStyle = bricks[c][r].color;
+                        ctx.fill();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+
+        // --- Lógica de Colisão ---
+        function collisionDetection() {
+            // Colisão com os tijolos
+            for (let c = 0; c < brick.columnCount; c++) {
+                for (let r = 0; r < brick.rowCount; r++) {
+                    const b = bricks[c][r];
+                    if (b.status === 1) {
+                        if (ball.x > b.x && ball.x < b.x + brick.width && ball.y > b.y && ball.y < b.y + brick.height) {
+                            ball.dy = -ball.dy;
+                            b.status = 0;
+                            score++;
+                            updateScore();
+                            checkWin();
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Atualizações do Jogo ---
+        function updateScore() {
+            scoreElement.textContent = `Pontuação: ${score}`;
+        }
+
+        function updateLives() {
+            livesElement.textContent = `Vidas: ${lives}`;
+        }
+        
+        function checkWin() {
+            if (score === brick.rowCount * brick.columnCount) {
+                displayMessage("VOCÊ VENCEU!");
+                gameRunning = false;
+                restartButton.style.display = 'block';
+            }
+        }
+        
+        function displayMessage(message) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "40px 'Press Start 2P'";
+            ctx.fillStyle = "#4CAF50";
+            ctx.textAlign = "center";
+            ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+        }
+
+        // --- Movimento ---
+        function moveBall() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // Colisão com as paredes laterais
+            if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+                ball.dx = -ball.dx;
+            }
+
+            // Colisão com a parede superior
+            if (ball.y - ball.radius < 0) {
+                ball.dy = -ball.dy;
+            }
+
+            // Colisão com a parte inferior (perde vida)
+            if (ball.y + ball.radius > canvas.height) {
+                lives--;
+                updateLives();
+                if (lives > 0) {
+                    // Reseta a posição da bola e da raquete
+                    ball.x = canvas.width / 2;
+                    ball.y = canvas.height - 30;
+                    ball.dx = 4;
+                    ball.dy = -4;
+                    paddle.x = (canvas.width - paddle.width) / 2;
+                } else {
+                    displayMessage("FIM DE JOGO");
+                    gameRunning = false;
+                    restartButton.style.display = 'block';
+                }
+            }
+            
+            // Colisão com a raquete
+            if (ball.y + ball.radius > canvas.height - paddle.height &&
+                ball.x > paddle.x &&
+                ball.x < paddle.x + paddle.width) {
+                ball.dy = -ball.dy;
+            }
+        }
+        
+        // --- Loop Principal do Jogo ---
+        function draw() {
+            if (!gameRunning) return;
+
+            // Limpa o canvas antes de desenhar
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenha os elementos
+            drawBricks();
+            drawBall();
+            drawPaddle();
+            
+            // Lógica do jogo
+            collisionDetection();
+            moveBall();
+
+            // Chama o próximo frame
+            requestAnimationFrame(draw);
+        }
+        
+        // --- Controles ---
+        document.addEventListener("mousemove", mouseMoveHandler, false);
+
+        function mouseMoveHandler(e) {
+            const relativeX = e.clientX - canvas.offsetLeft;
+            if (relativeX > 0 && relativeX < canvas.width) {
+                paddle.x = relativeX - paddle.width / 2;
+                // Garante que a raquete não saia da tela
+                 if (paddle.x < 0) {
+                    paddle.x = 0;
+                }
+                if (paddle.x + paddle.width > canvas.width) {
+                    paddle.x = canvas.width - paddle.width;
+                }
+            }
+        }
+        
+        // --- Reiniciar Jogo ---
+        restartButton.addEventListener('click', () => {
+            document.location.reload();
+        });
+        
+        // --- Início ---
+        initializeBricks();
+        draw();
+
+    </script>
+</body>
+</html>
